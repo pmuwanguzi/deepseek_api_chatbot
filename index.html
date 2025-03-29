@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>AI ChatBot_01_deepseek</title>
+		<link
+			rel="stylesheet"
+			href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css"
+		/>
+		<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+		<style>
+			#response {
+				margin-top: 20px;
+				padding: 10px;
+				min-height: 50px;
+			}
+			#response h3 {
+				color: #333;
+				font-size: 1.2em;
+			}
+			#response strong {
+				color: #d9534f;
+			}
+			#response ul {
+				padding-left: 20px;
+			}
+			#response li {
+				margin-bottom: 5px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<h2>AI CHatBot Powered by Deepseek API.</h2>
+			<div class="form-group">
+				<input
+					type="text"
+					class="form-control"
+					id="userInput"
+					placeholder="How may I be of service?"
+				/>
+			</div>
+			<button class="btn btn-success" onclick="sendMessage()">
+				Submit!
+			</button>
+			<div id="response"></div>
+		</div>
+		<script>
+			async function sendMessage() {
+				const input = document.getElementById("userInput").value
+				const responseDiv = document.getElementById("response")
+				if (!input) {
+					responseDiv.innerHTML = "I'm here to be of service, please go ahead and type any question."
+					return
+				}
+				responseDiv.innerHTML = "Please give me a second..."
+				try {
+					console.log("#### --> Trying to Load User Query! <-- ####")
+
+					const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+  						method: "POST",
+						headers: {
+							"Authorization": "Bearer <API_KEY>",
+							"HTTP-Referer": "pmuwanguzi.tech", // Optional. Site URL for rankings on openrouter.ai.
+							"X-Title": "pmuwanguzi.tech", // Optional. Site title for rankings on openrouter.ai.
+							"Content-Type": "application/json"
+						},
+						body: JSON.stringify({
+							"model": "deepseek/deepseek-chat-v3-0324:free",
+							"messages": [{"role": "user","content": input}]
+						})
+						});
+						const data = await response.json();
+						console.log(data)
+						const markdownText = data.choices?.[0]?.message?.content || "No response from server!";
+						responseDiv.innerHTML = marked.parse(markdownText);
+						
+					} catch (error) {
+					responseDiv.innerHTML = "Error: " + error.message
+					}
+			}
+		</script>
+	</body>
+</html>
